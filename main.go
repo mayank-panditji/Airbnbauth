@@ -2,9 +2,12 @@ package main
 
 import (
 	"Authingo/app"
+
+	config "Authingo/config/env"
 )
 func main(){
-	cfg:=app.NewConfig(":8080")
+	config.Load()
+	cfg:=app.NewConfig()
 	app:=app.NewApplication(cfg)
 	app.Run()
 }
