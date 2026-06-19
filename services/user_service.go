@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 type UserService interface {
-	CreateUser() error
+	GetUserByID() error
 }
 type UserServiceImpl struct {
 	userRepository db.UserRepository
@@ -15,8 +15,8 @@ func NewUserService(_userRepository db.UserRepository) UserService{
 		userRepository:_userRepository,
 	}
 }
-func (u *UserServiceImpl) CreateUser() error{
+func (u *UserServiceImpl) GetUserByID() error{
 	fmt.Println("creating user in userservice")
-	u.userRepository.Create()
+	u.userRepository.GetByID()
 	return nil
 }

@@ -9,6 +9,8 @@ import (
 	"time"
 	"Authingo/controllers"
 	"Authingo/services"
+	dbConfig "Authingo/config/env/db"
+	repo "Authingo/db/repositories"
 )
 
 // config holds the cofiguration for the server
@@ -33,7 +35,11 @@ func NewApplication (cfg Config) *Application{
 }
 
 func (app *Application) Run() error{
-	ur:=db.NewUserRepository()
+	db,err:=dbConfig.SetupDB()
+	if err!=nil{
+		fmt.Println("Error setting up database",err)
+	}
+	ur:=repo.NewUserRepository(db)
 	us:=services.NewUserService(ur)
 	uc:=controllers.NewUserController(us)
 	uRouter:=router.NewUserRouter(uc)
