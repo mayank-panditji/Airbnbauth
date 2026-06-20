@@ -7,7 +7,7 @@ import (
 )
 type UserRepository interface{
 		GetByID() (*models.User,error) 
-		Create() (error)
+		Create(username string,email string,hashedPassword string) error
 		GetAll() ([]*models.User,error)
 		DeleteById(id int64) error
 
@@ -71,9 +71,9 @@ func(u *UsserRepositoryImpl) DeleteById(id int64) error{
 	fmt.Println("user deleted succesfully, rows affected:",rowsaffected)
 	return nil
 }
-func(u *UsserRepositoryImpl) Create() error{
+func(u *UsserRepositoryImpl) Create(username string,email string,hashedPassword string) error{
 	query:="INSERT INTO users(username,email,password) VALUES(?,?,?)"
-	result,err:=u.db.Exec(query,"testusser","test@test.com","password123")
+	result,err:=u.db.Exec(query,username,email,hashedPassword)
 	if err!=nil{
 		fmt.Println("error creating user",err)
 		return err

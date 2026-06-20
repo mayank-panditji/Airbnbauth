@@ -47,3 +47,14 @@ func (uc *UserController) DeleteUserById(w http.ResponseWriter,r *http.Request){
 	}
 	w.Write([]byte("user deleted succesfully"))
 }
+func (uc *UserController) CreateUser(w http.ResponseWriter,r *http.Request){
+	fmt.Println("create user endpoint")
+	uc.UserService.CreateUser()
+	
+	w.Write([]byte("user created succesfully"))
+}
+func (uc *UserController) LoginUser(w http.ResponseWriter,r *http.Request){
+	fmt.Println("login user endpoint")
+	uc.UserService.LoginUser()
+	w.Write([]byte("user logged in"))
+}
