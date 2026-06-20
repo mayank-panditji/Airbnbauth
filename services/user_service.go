@@ -1,17 +1,20 @@
 package services
 
 import (
+	"Authingo/config/env"
 	db "Authingo/db/repositories"
 	"Authingo/models"
 	"Authingo/utils"
 	"fmt"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 type UserService interface {
 	GetUserByID() error
 	GetAllUsers() ([]*models.User,error)
 	DeleteUserById(id int64) error
 	CreateUser() error
-	LoginUser() error
+	LoginUser() (string,error)
 }
 type UserServiceImpl struct {
 	userRepository db.UserRepository
@@ -59,8 +62,46 @@ func (u *UserServiceImpl) CreateUser() error{
 	)
 	return nil
 }
-func (u *UserServiceImpl) LoginUser() error{
-	response:=utils.CheckPasswordHash("password_example","$2a$10$ftaFjZRUn05STnDBQ8.aK.G1U8dPC8iUzfF94NrmVou1REa4NVuwy")
-	fmt.Println("Login response:",response)
-	return nil
+func (u *UserServiceImpl) LoginUser() (string,error){
+	email:="user@example.com"
+	password:="password_example"
+user, err := u.userRepository.GetByEmail(email)
+
+	if err != nil {
+		fmt.Println("Error fetching user by email:", err)
+		return "", err
+	}
+
+	// Step 2. If user exists, or not. If not exists, return error
+	if user == nil {
+		fmt.Println("No user found with the given email")
+		return "", fmt.Errorf("no user found with email: %s", email)
+	}
+
+	// Step 3. If user exists, check the password using utils.CheckPasswordHash
+	isPasswordValid := utils.CheckPasswordHash(password, user.Password)
+
+	if !isPasswordValid {
+		fmt.Println("Password does not match")
+		return "", nil
+	}
+
+	// Step 4. If password matches, print a JWT token, else return error saying password does not match
+	jwtPayload := jwt.MapClaims{
+		"email": user.Email,
+		"id":    user.Id,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwtPayload)
+
+	tokenString, err := token.SignedString([]byte(env.GetString("JWT_SECRET", "TOKEN")))
+
+	if err != nil {
+		fmt.Println("Error signing token:", err)
+		return "", err
+	}
+
+	fmt.Println("JWT Token:", tokenString)
+
+	return tokenString, nil
 }
