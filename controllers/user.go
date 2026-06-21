@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"Authingo/services"
+	"Authingo/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
-
+	"Authingo/dto"
 	"github.com/go-chi/chi/v5"
 )
 type UserController struct{
@@ -55,6 +56,20 @@ func (uc *UserController) CreateUser(w http.ResponseWriter,r *http.Request){
 }
 func (uc *UserController) LoginUser(w http.ResponseWriter,r *http.Request){
 	fmt.Println("login user endpoint")
-	uc.UserService.LoginUser()
-	w.Write([]byte("user logged in"))
+	var payload dto.LoginRequestDTO
+	if jsonErr:=utils.ReadJson(r,&payload); jsonErr!=nil{
+		utils.WriteJsonErrorResponse(w,http.StatusBadRequest,"Something went wrong while logging",jsonErr)
+		return
+	}
+	if validationErr:=utils.Validator.Struct(payload);validationErr!=nil{
+		utils.WriteJsonErrorResponse(w,http.StatusBadRequest,"invalid input data",validationErr)
+		return
+	}
+	jwtToken,err:=uc.UserService.LoginUser(&payload)
+	if err!=nil{
+		utils.WriteJsonErrorResponse(w,http.StatusInternalServerError,"error logging in user",err)
+		return
+	}
+	
+	utils.WriteJsonSuccessResponse(w,http.StatusOK,"user logged in succesfully",jwtToken,)
 }

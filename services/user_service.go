@@ -6,7 +6,7 @@ import (
 	"Authingo/models"
 	"Authingo/utils"
 	"fmt"
-
+		"Authingo/dto"
 	"github.com/golang-jwt/jwt/v4"
 )
 type UserService interface {
@@ -14,7 +14,7 @@ type UserService interface {
 	GetAllUsers() ([]*models.User,error)
 	DeleteUserById(id int64) error
 	CreateUser() error
-	LoginUser() (string,error)
+	LoginUser(payload *dto.LoginRequestDTO) (string,error)
 }
 type UserServiceImpl struct {
 	userRepository db.UserRepository
@@ -62,9 +62,9 @@ func (u *UserServiceImpl) CreateUser() error{
 	)
 	return nil
 }
-func (u *UserServiceImpl) LoginUser() (string,error){
-	email:="user@example.com"
-	password:="password_example"
+func (u *UserServiceImpl) LoginUser(payload *dto.LoginRequestDTO) (string,error){
+	email:=payload.Email
+	password:=payload.Password
 user, err := u.userRepository.GetByEmail(email)
 
 	if err != nil {
