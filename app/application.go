@@ -38,6 +38,7 @@ func (app *Application) Run() error{
 	db,err:=dbConfig.SetupDB()
 	if err!=nil{
 		fmt.Println("Error setting up database",err)
+		return err
 	}
 		ur := repo.NewUserRepository(db)
 	rr := repo.NewRoleRepository(db)
